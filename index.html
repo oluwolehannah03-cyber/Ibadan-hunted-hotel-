@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ibadan Haunted Hotel</title>
 
@@ -8,11 +9,7 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: black;
-    }
-
-    canvas {
-      display: block;
+      background: #000;
     }
   </style>
 </head>
@@ -20,290 +17,133 @@
 <body>
 
 <script type="module">
-
 import * as THREE from
-'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
-
-
-// =========================
-// SCENE
-// =========================
+"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x111111);
-
-
-// =========================
-// CAMERA
-// =========================
+scene.background = new THREE.Color(0x151515);
 
 const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  100
 );
 
-camera.position.set(0, 2, 7);
+camera.position.set(0, 2, 8);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
 
-// =========================
 // LIGHT
-// =========================
-
-const light = new THREE.AmbientLight(
-  0xffffff,
-  1
-);
-
+const light = new THREE.PointLight(0xffe0a0, 30, 20);
+light.position.set(0, 4, 2);
 scene.add(light);
 
+const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+scene.add(ambient);
 
-// =========================
+
 // FLOOR
-// =========================
-
-const floorGeometry =
-  new THREE.BoxGeometry(10, 0.2, 10);
-
-const floorMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x555555
-  });
-
-const floor =
-  new THREE.Mesh(
-    floorGeometry,
-    floorMaterial
-  );
+const floor = new THREE.Mesh(
+  new THREE.BoxGeometry(12, 0.2, 12),
+  new THREE.MeshStandardMaterial({ color: 0x555555 })
+);
 
 floor.position.y = -0.1;
-
 scene.add(floor);
 
 
-// =========================
 // BACK WALL
-// =========================
+const backWall = new THREE.Mesh(
+  new THREE.BoxGeometry(12, 4, 0.2),
+  new THREE.MeshStandardMaterial({ color: 0x777777 })
+);
 
-const wallGeometry =
-  new THREE.BoxGeometry(10, 3, 0.2);
-
-const wallMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x888888
-  });
-
-const backWall =
-  new THREE.Mesh(
-    wallGeometry,
-    wallMaterial
-  );
-
-backWall.position.set(0, 1.5, -5);
-
+backWall.position.set(0, 2, -6);
 scene.add(backWall);
 
 
-// =========================
 // LEFT WALL
-// =========================
+const leftWall = new THREE.Mesh(
+  new THREE.BoxGeometry(0.2, 4, 12),
+  new THREE.MeshStandardMaterial({ color: 0x666666 })
+);
 
-const sideGeometry =
-  new THREE.BoxGeometry(0.2, 3, 10);
-
-const leftWall =
-  new THREE.Mesh(
-    sideGeometry,
-    wallMaterial
-  );
-
-leftWall.position.set(-5, 1.5, 0);
-
+leftWall.position.set(-6, 2, 0);
 scene.add(leftWall);
 
 
-// =========================
 // RIGHT WALL
-// =========================
+const rightWall = new THREE.Mesh(
+  new THREE.BoxGeometry(0.2, 4, 12),
+  new THREE.MeshStandardMaterial({ color: 0x666666 })
+);
 
-const rightWall =
-  new THREE.Mesh(
-    sideGeometry,
-    wallMaterial
-  );
-
-rightWall.position.set(5, 1.5, 0);
-
+rightWall.position.set(6, 2, 0);
 scene.add(rightWall);
 
 
-// =========================
-// CEILING
-// =========================
-
-const ceilingGeometry =
-  new THREE.BoxGeometry(10, 0.2, 10);
-
-const ceilingMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x333333
-  });
-
-const ceiling =
-  new THREE.Mesh(
-    ceilingGeometry,
-    ceilingMaterial
-  );
-
-ceiling.position.y = 3;
-
-scene.add(ceiling);
-
-
-// =========================
-// BED
-// =========================
-
-const bedGeometry =
-  new THREE.BoxGeometry(3, 0.6, 5);
-
-const bedMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x222244
-  });
-
-const bed =
-  new THREE.Mesh(
-    bedGeometry,
-    bedMaterial
-  );
-
-bed.position.set(0, 0.4, -1);
-
-scene.add(bed);
-
-
-// =========================
-// BED HEADBOARD
-// =========================
-
-const headGeometry =
-  new THREE.BoxGeometry(3, 1.8, 0.3);
-
-const headboard =
-  new THREE.Mesh(
-    headGeometry,
-    bedMaterial
-  );
-
-headboard.position.set(0, 1.2, -3.3);
-
-scene.add(headboard);
-
-
-// =========================
-// RUG
-// =========================
-
-const rugGeometry =
-  new THREE.BoxGeometry(4, 0.05, 3);
-
-const rugMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x552222
-  });
-
-const rug =
-  new THREE.Mesh(
-    rugGeometry,
-    rugMaterial
-  );
-
-rug.position.set(0, 0.05, 2);
-
-scene.add(rug);
-
-
-// =========================
-// LIGHT
-// =========================
-
-const bulb =
-  new THREE.PointLight(
-    0xffffcc,
-    8,
-    15
-  );
-
-bulb.position.set(0, 2.7, 0);
-
-scene.add(bulb);
-
-
-// =========================
-// RENDERER
-// =========================
-
-const renderer =
-  new THREE.WebGLRenderer({
-    antialias: true
-  });
-
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
+// RECEPTION DESK
+const desk = new THREE.Mesh(
+  new THREE.BoxGeometry(4, 1.2, 1.2),
+  new THREE.MeshStandardMaterial({ color: 0x4a2c20 })
 );
 
-document.body.appendChild(
-  renderer.domElement
+desk.position.set(0, 0.6, -3);
+scene.add(desk);
+
+
+// RECEPTION TOP
+const deskTop = new THREE.Mesh(
+  new THREE.BoxGeometry(4.2, 0.15, 1.4),
+  new THREE.MeshStandardMaterial({ color: 0x704832 })
 );
 
+deskTop.position.set(0, 1.25, -3);
+scene.add(deskTop);
 
-// =========================
-// RESIZE
-// =========================
 
-window.addEventListener(
-  'resize',
-  () => {
-
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
-
-  }
+// DOOR 1
+const door1 = new THREE.Mesh(
+  new THREE.BoxGeometry(1.5, 2.8, 0.2),
+  new THREE.MeshStandardMaterial({ color: 0x321c14 })
 );
 
+door1.position.set(-3.5, 1.4, -5.85);
+scene.add(door1);
 
-// =========================
-// GAME LOOP
-// =========================
 
+// DOOR 2
+const door2 = new THREE.Mesh(
+  new THREE.BoxGeometry(1.5, 2.8, 0.2),
+  new THREE.MeshStandardMaterial({ color: 0x321c14 })
+);
+
+door2.position.set(3.5, 1.4, -5.85);
+scene.add(door2);
+
+
+// ANIMATION
 function animate() {
+  requestAnimationFrame(animate);
 
-  requestAnimationFrame(
-    animate
-  );
-
-  renderer.render(
-    scene,
-    camera
-  );
-
+  renderer.render(scene, camera);
 }
 
 animate();
 
+
+// PHONE SCREEN RESIZE
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
 
 </body>
-    </html>
+</html>
