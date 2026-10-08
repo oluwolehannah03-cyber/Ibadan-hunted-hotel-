@@ -9,7 +9,7 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: #000;
+      background: #eeeeee;
     }
   </style>
 </head>
@@ -21,7 +21,7 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x151515);
+scene.background = new THREE.Color(0xbfd8e8);
 
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -32,34 +32,47 @@ const camera = new THREE.PerspectiveCamera(
 
 camera.position.set(0, 2, 8);
 
+
+// RENDERER
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
 
 
-// LIGHT
-const light = new THREE.PointLight(0xffe0a0, 30, 20);
+// BRIGHT HOTEL LIGHTING
+const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+scene.add(ambient);
+
+const light = new THREE.PointLight(0xfff2c4, 35, 25);
 light.position.set(0, 4, 2);
 scene.add(light);
-
-const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-scene.add(ambient);
 
 
 // FLOOR
 const floor = new THREE.Mesh(
   new THREE.BoxGeometry(12, 0.2, 12),
-  new THREE.MeshStandardMaterial({ color: 0x555555 })
+  new THREE.MeshStandardMaterial({ color: 0xd8c3a5 })
 );
 
 floor.position.y = -0.1;
 scene.add(floor);
 
 
+// CARPET
+const carpet = new THREE.Mesh(
+  new THREE.BoxGeometry(6, 0.04, 7),
+  new THREE.MeshStandardMaterial({ color: 0x8b3f3f })
+);
+
+carpet.position.set(0, 0.03, 1);
+scene.add(carpet);
+
+
 // BACK WALL
 const backWall = new THREE.Mesh(
   new THREE.BoxGeometry(12, 4, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0x777777 })
+  new THREE.MeshStandardMaterial({ color: 0xf0e6d2 })
 );
 
 backWall.position.set(0, 2, -6);
@@ -69,7 +82,7 @@ scene.add(backWall);
 // LEFT WALL
 const leftWall = new THREE.Mesh(
   new THREE.BoxGeometry(0.2, 4, 12),
-  new THREE.MeshStandardMaterial({ color: 0x666666 })
+  new THREE.MeshStandardMaterial({ color: 0xe7dcc8 })
 );
 
 leftWall.position.set(-6, 2, 0);
@@ -79,7 +92,7 @@ scene.add(leftWall);
 // RIGHT WALL
 const rightWall = new THREE.Mesh(
   new THREE.BoxGeometry(0.2, 4, 12),
-  new THREE.MeshStandardMaterial({ color: 0x666666 })
+  new THREE.MeshStandardMaterial({ color: 0xe7dcc8 })
 );
 
 rightWall.position.set(6, 2, 0);
@@ -89,7 +102,7 @@ scene.add(rightWall);
 // RECEPTION DESK
 const desk = new THREE.Mesh(
   new THREE.BoxGeometry(4, 1.2, 1.2),
-  new THREE.MeshStandardMaterial({ color: 0x4a2c20 })
+  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
 );
 
 desk.position.set(0, 0.6, -3);
@@ -99,17 +112,31 @@ scene.add(desk);
 // RECEPTION TOP
 const deskTop = new THREE.Mesh(
   new THREE.BoxGeometry(4.2, 0.15, 1.4),
-  new THREE.MeshStandardMaterial({ color: 0x704832 })
+  new THREE.MeshStandardMaterial({ color: 0x9b6b43 })
 );
 
 deskTop.position.set(0, 1.25, -3);
 scene.add(deskTop);
 
 
+// RECEPTION BELL
+const bell = new THREE.Mesh(
+  new THREE.SphereGeometry(0.18, 16, 16),
+  new THREE.MeshStandardMaterial({
+    color: 0xffd700,
+    metalness: 0.7,
+    roughness: 0.2
+  })
+);
+
+bell.position.set(0, 1.48, -3);
+scene.add(bell);
+
+
 // DOOR 1
 const door1 = new THREE.Mesh(
   new THREE.BoxGeometry(1.5, 2.8, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0x321c14 })
+  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
 );
 
 door1.position.set(-3.5, 1.4, -5.85);
@@ -119,24 +146,43 @@ scene.add(door1);
 // DOOR 2
 const door2 = new THREE.Mesh(
   new THREE.BoxGeometry(1.5, 2.8, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0x321c14 })
+  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
 );
 
 door2.position.set(3.5, 1.4, -5.85);
 scene.add(door2);
 
 
+// HOTEL SIGN
+const sign = new THREE.Mesh(
+  new THREE.BoxGeometry(5, 1, 0.15),
+  new THREE.MeshStandardMaterial({ color: 0x8b6f47 })
+);
+
+sign.position.set(0, 3.1, -5.8);
+scene.add(sign);
+
+
+// CEILING LIGHT
+const ceilingLight = new THREE.Mesh(
+  new THREE.SphereGeometry(0.35, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0xffffcc })
+);
+
+ceilingLight.position.set(0, 3.8, 1);
+scene.add(ceilingLight);
+
+
 // ANIMATION
 function animate() {
   requestAnimationFrame(animate);
-
   renderer.render(scene, camera);
 }
 
 animate();
 
 
-// PHONE SCREEN RESIZE
+// RESIZE
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
