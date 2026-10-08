@@ -10,18 +10,58 @@
       margin: 0;
       overflow: hidden;
       background: #eeeeee;
+      touch-action: none;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 25px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    button {
+      width: 65px;
+      height: 65px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      color: white;
+      font-size: 28px;
+    }
+
+    button:active {
+      background: rgba(255,255,255,0.5);
     }
   </style>
 </head>
 
 <body>
 
+<div id="controls">
+  <button id="left">◀</button>
+  <button id="forward">▲</button>
+  <button id="back">▼</button>
+  <button id="right">▶</button>
+</div>
+
 <script type="module">
+
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
+
+/* GAME */
 const scene = new THREE.Scene();
+
 scene.background = new THREE.Color(0xbfd8e8);
+
+
+/* CAMERA */
 
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -33,163 +73,328 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 2, 8);
 
 
-// RENDERER
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+/* RENDERER */
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true
+});
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio, 2)
+);
+
 document.body.appendChild(renderer.domElement);
 
 
-// BRIGHT HOTEL LIGHTING
-const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+/* LIGHT */
+
+const ambient = new THREE.AmbientLight(
+  0xffffff,
+  1.2
+);
+
 scene.add(ambient);
 
-const light = new THREE.PointLight(0xfff2c4, 35, 25);
-light.position.set(0, 4, 2);
+
+const light = new THREE.PointLight(
+  0xfff2c4,
+  35,
+  25
+);
+
+light.position.set(0,4,2);
+
 scene.add(light);
 
 
-// FLOOR
+/* FLOOR */
+
 const floor = new THREE.Mesh(
-  new THREE.BoxGeometry(12, 0.2, 12),
-  new THREE.MeshStandardMaterial({ color: 0xd8c3a5 })
-);
-
-floor.position.y = -0.1;
-scene.add(floor);
-
-
-// CARPET
-const carpet = new THREE.Mesh(
-  new THREE.BoxGeometry(6, 0.04, 7),
-  new THREE.MeshStandardMaterial({ color: 0x8b3f3f })
-);
-
-carpet.position.set(0, 0.03, 1);
-scene.add(carpet);
-
-
-// BACK WALL
-const backWall = new THREE.Mesh(
-  new THREE.BoxGeometry(12, 4, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0xf0e6d2 })
-);
-
-backWall.position.set(0, 2, -6);
-scene.add(backWall);
-
-
-// LEFT WALL
-const leftWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 4, 12),
-  new THREE.MeshStandardMaterial({ color: 0xe7dcc8 })
-);
-
-leftWall.position.set(-6, 2, 0);
-scene.add(leftWall);
-
-
-// RIGHT WALL
-const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 4, 12),
-  new THREE.MeshStandardMaterial({ color: 0xe7dcc8 })
-);
-
-rightWall.position.set(6, 2, 0);
-scene.add(rightWall);
-
-
-// RECEPTION DESK
-const desk = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 1.2, 1.2),
-  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
-);
-
-desk.position.set(0, 0.6, -3);
-scene.add(desk);
-
-
-// RECEPTION TOP
-const deskTop = new THREE.Mesh(
-  new THREE.BoxGeometry(4.2, 0.15, 1.4),
-  new THREE.MeshStandardMaterial({ color: 0x9b6b43 })
-);
-
-deskTop.position.set(0, 1.25, -3);
-scene.add(deskTop);
-
-
-// RECEPTION BELL
-const bell = new THREE.Mesh(
-  new THREE.SphereGeometry(0.18, 16, 16),
+  new THREE.BoxGeometry(12,0.2,12),
   new THREE.MeshStandardMaterial({
-    color: 0xffd700,
-    metalness: 0.7,
-    roughness: 0.2
+    color:0xd8c3a5
   })
 );
 
-bell.position.set(0, 1.48, -3);
+floor.position.y = -0.1;
+
+scene.add(floor);
+
+
+/* CARPET */
+
+const carpet = new THREE.Mesh(
+  new THREE.BoxGeometry(6,0.04,7),
+  new THREE.MeshStandardMaterial({
+    color:0x8b3f3f
+  })
+);
+
+carpet.position.set(0,0.03,1);
+
+scene.add(carpet);
+
+
+/* BACK WALL */
+
+const backWall = new THREE.Mesh(
+  new THREE.BoxGeometry(12,4,0.2),
+  new THREE.MeshStandardMaterial({
+    color:0xf0e6d2
+  })
+);
+
+backWall.position.set(0,2,-6);
+
+scene.add(backWall);
+
+
+/* LEFT WALL */
+
+const leftWall = new THREE.Mesh(
+  new THREE.BoxGeometry(0.2,4,12),
+  new THREE.MeshStandardMaterial({
+    color:0xe7dcc8
+  })
+);
+
+leftWall.position.set(-6,2,0);
+
+scene.add(leftWall);
+
+
+/* RIGHT WALL */
+
+const rightWall = new THREE.Mesh(
+  new THREE.BoxGeometry(0.2,4,12),
+  new THREE.MeshStandardMaterial({
+    color:0xe7dcc8
+  })
+);
+
+rightWall.position.set(6,2,0);
+
+scene.add(rightWall);
+
+
+/* RECEPTION */
+
+const desk = new THREE.Mesh(
+  new THREE.BoxGeometry(4,1.2,1.2),
+  new THREE.MeshStandardMaterial({
+    color:0x6b4226
+  })
+);
+
+desk.position.set(0,0.6,-3);
+
+scene.add(desk);
+
+
+const deskTop = new THREE.Mesh(
+  new THREE.BoxGeometry(4.2,0.15,1.4),
+  new THREE.MeshStandardMaterial({
+    color:0x9b6b43
+  })
+);
+
+deskTop.position.set(0,1.25,-3);
+
+scene.add(deskTop);
+
+
+/* BELL */
+
+const bell = new THREE.Mesh(
+  new THREE.SphereGeometry(0.18,16,16),
+  new THREE.MeshStandardMaterial({
+    color:0xffd700,
+    metalness:0.7,
+    roughness:0.2
+  })
+);
+
+bell.position.set(0,1.48,-3);
+
 scene.add(bell);
 
 
-// DOOR 1
+/* DOORS */
+
 const door1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.5, 2.8, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
+  new THREE.BoxGeometry(1.5,2.8,0.2),
+  new THREE.MeshStandardMaterial({
+    color:0x6b4226
+  })
 );
 
-door1.position.set(-3.5, 1.4, -5.85);
+door1.position.set(-3.5,1.4,-5.85);
+
 scene.add(door1);
 
 
-// DOOR 2
 const door2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.5, 2.8, 0.2),
-  new THREE.MeshStandardMaterial({ color: 0x6b4226 })
+  new THREE.BoxGeometry(1.5,2.8,0.2),
+  new THREE.MeshStandardMaterial({
+    color:0x6b4226
+  })
 );
 
-door2.position.set(3.5, 1.4, -5.85);
+door2.position.set(3.5,1.4,-5.85);
+
 scene.add(door2);
 
 
-// HOTEL SIGN
+/* HOTEL SIGN */
+
 const sign = new THREE.Mesh(
-  new THREE.BoxGeometry(5, 1, 0.15),
-  new THREE.MeshStandardMaterial({ color: 0x8b6f47 })
+  new THREE.BoxGeometry(5,1,0.15),
+  new THREE.MeshStandardMaterial({
+    color:0x8b6f47
+  })
 );
 
-sign.position.set(0, 3.1, -5.8);
+sign.position.set(0,3.1,-5.8);
+
 scene.add(sign);
 
 
-// CEILING LIGHT
+/* CEILING LIGHT */
+
 const ceilingLight = new THREE.Mesh(
-  new THREE.SphereGeometry(0.35, 16, 16),
-  new THREE.MeshBasicMaterial({ color: 0xffffcc })
+  new THREE.SphereGeometry(0.35,16,16),
+  new THREE.MeshBasicMaterial({
+    color:0xffffcc
+  })
 );
 
-ceilingLight.position.set(0, 3.8, 1);
+ceilingLight.position.set(0,3.8,1);
+
 scene.add(ceilingLight);
 
 
-// ANIMATION
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
+/* PLAYER MOVEMENT */
+
+const speed = 0.08;
+const turnSpeed = 0.05;
+
+let moveForward = false;
+let moveBack = false;
+let turnLeft = false;
+let turnRight = false;
+
+
+/* BUTTON FUNCTION */
+
+function control(button, action) {
+
+  button.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    action(true);
+  });
+
+  button.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    action(false);
+  });
+
 }
+
+
+/* CONTROLS */
+
+control(
+  document.getElementById("forward"),
+  value => moveForward = value
+);
+
+control(
+  document.getElementById("back"),
+  value => moveBack = value
+);
+
+control(
+  document.getElementById("left"),
+  value => turnLeft = value
+);
+
+control(
+  document.getElementById("right"),
+  value => turnRight = value
+);
+
+
+/* GAME LOOP */
+
+function animate() {
+
+  requestAnimationFrame(animate);
+
+
+  /* TURN */
+
+  if (turnLeft)
+    camera.rotation.y += turnSpeed;
+
+  if (turnRight)
+    camera.rotation.y -= turnSpeed;
+
+
+  /* MOVE */
+
+  if (moveForward) {
+
+    camera.position.x -=
+      Math.sin(camera.rotation.y) * speed;
+
+    camera.position.z -=
+      Math.cos(camera.rotation.y) * speed;
+  }
+
+
+  if (moveBack) {
+
+    camera.position.x +=
+      Math.sin(camera.rotation.y) * speed;
+
+    camera.position.z +=
+      Math.cos(camera.rotation.y) * speed;
+  }
+
+
+  renderer.render(scene,camera);
+}
+
 
 animate();
 
 
-// RESIZE
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+/* RESIZE */
 
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+window.addEventListener(
+  "resize",
+  () => {
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+  }
+);
+
 </script>
 
 </body>
-</html>
+  </html>
