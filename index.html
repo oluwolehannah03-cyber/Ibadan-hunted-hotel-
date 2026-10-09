@@ -1,400 +1,203 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ibadan Haunted Hotel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Ibadan Haunted Hotel</title>
 
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #eeeeee;
-      touch-action: none;
-    }
-
-    #controls {
-      position: fixed;
-      bottom: 25px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      z-index: 10;
-    }
-
-    button {
-      width: 65px;
-      height: 65px;
-      border: none;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.55);
-      color: white;
-      font-size: 28px;
-    }
-
-    button:active {
-      background: rgba(255,255,255,0.5);
-    }
-  </style>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  touch-action: none;
+}
+canvas {
+  display: block;
+}
+#joystick {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  width: 180px;
+  height: 180px;
+  border: 3px solid #9ca3af;
+  border-radius: 50%;
+  background: rgba(30,35,42,0.82);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  place-items: center;
+  z-index: 10;
+  touch-action: none;
+  user-select: none;
+}
+.key {
+  color: white;
+  font-size: 30px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #555e68;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#up { grid-column: 2; grid-row: 1; }
+#left { grid-column: 1; grid-row: 2; }
+#center {
+  grid-column: 2;
+  grid-row: 2;
+  width: 38px;
+  height: 38px;
+  background: #3e4853;
+  border-radius: 50%;
+}
+#right { grid-column: 3; grid-row: 2; }
+#down { grid-column: 2; grid-row: 3; }
+.key.active { background: #b38b52; }
+</style>
 </head>
-
 <body>
 
-<div id="controls">
-  <button id="left">◀</button>
-  <button id="forward">▲</button>
-  <button id="back">▼</button>
-  <button id="right">▶</button>
+<div id="joystick">
+  <div class="key" id="up">▲</div>
+  <div class="key" id="left">◀</div>
+  <div id="center"></div>
+  <div class="key" id="right">▶</div>
+  <div class="key" id="down">▼</div>
 </div>
 
 <script type="module">
-
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-
-/* GAME */
 const scene = new THREE.Scene();
-
 scene.background = new THREE.Color(0xbfd8e8);
 
-
-/* CAMERA */
-
 const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
+  75, window.innerWidth / window.innerHeight, 0.1, 100
 );
-
 camera.position.set(0, 2, 8);
+camera.lookAt(0, 1.5, 0);
 
-
-/* RENDERER */
-
-const renderer = new THREE.WebGLRenderer({
-  antialias: true
-});
-
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
-);
-
-renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 2)
-);
-
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
+scene.add(new THREE.AmbientLight(0xffffff, 2));
 
-/* LIGHT */
-
-const ambient = new THREE.AmbientLight(
-  0xffffff,
-  1.2
-);
-
-scene.add(ambient);
-
-
-const light = new THREE.PointLight(
-  0xfff2c4,
-  35,
-  25
-);
-
-light.position.set(0,4,2);
-
+const light = new THREE.PointLight(0xfff2c4, 40, 30);
+light.position.set(0, 4, 2);
 scene.add(light);
 
+function box(w, h, d, color, x, y, z) {
+  const obj = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    new THREE.MeshStandardMaterial({ color })
+  );
+  obj.position.set(x, y, z);
+  scene.add(obj);
+  return obj;
+}
 
-/* FLOOR */
+// Bright lobby floor and carpet
+box(12, 0.2, 12, 0xd8c3a5, 0, -0.1, 0);
+box(6, 0.04, 7, 0x8b3f3f, 0, 0.03, 1);
 
-const floor = new THREE.Mesh(
-  new THREE.BoxGeometry(12,0.2,12),
-  new THREE.MeshStandardMaterial({
-    color:0xd8c3a5
-  })
-);
+// Lobby walls
+box(12, 4, 0.2, 0xf0e6d2, 0, 2, -6);
+box(0.2, 4, 12, 0xe7dcc8, -6, 2, 0);
+box(0.2, 4, 12, 0xe7dcc8, 6, 2, 0);
 
-floor.position.y = -0.1;
+// Reception desk and top
+box(4, 1.2, 1.2, 0x6b4226, 0, 0.6, -3);
+box(4.2, 0.15, 1.4, 0x9b6b43, 0, 1.25, -3);
 
-scene.add(floor);
-
-
-/* CARPET */
-
-const carpet = new THREE.Mesh(
-  new THREE.BoxGeometry(6,0.04,7),
-  new THREE.MeshStandardMaterial({
-    color:0x8b3f3f
-  })
-);
-
-carpet.position.set(0,0.03,1);
-
-scene.add(carpet);
-
-
-/* BACK WALL */
-
-const backWall = new THREE.Mesh(
-  new THREE.BoxGeometry(12,4,0.2),
-  new THREE.MeshStandardMaterial({
-    color:0xf0e6d2
-  })
-);
-
-backWall.position.set(0,2,-6);
-
-scene.add(backWall);
-
-
-/* LEFT WALL */
-
-const leftWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2,4,12),
-  new THREE.MeshStandardMaterial({
-    color:0xe7dcc8
-  })
-);
-
-leftWall.position.set(-6,2,0);
-
-scene.add(leftWall);
-
-
-/* RIGHT WALL */
-
-const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2,4,12),
-  new THREE.MeshStandardMaterial({
-    color:0xe7dcc8
-  })
-);
-
-rightWall.position.set(6,2,0);
-
-scene.add(rightWall);
-
-
-/* RECEPTION */
-
-const desk = new THREE.Mesh(
-  new THREE.BoxGeometry(4,1.2,1.2),
-  new THREE.MeshStandardMaterial({
-    color:0x6b4226
-  })
-);
-
-desk.position.set(0,0.6,-3);
-
-scene.add(desk);
-
-
-const deskTop = new THREE.Mesh(
-  new THREE.BoxGeometry(4.2,0.15,1.4),
-  new THREE.MeshStandardMaterial({
-    color:0x9b6b43
-  })
-);
-
-deskTop.position.set(0,1.25,-3);
-
-scene.add(deskTop);
-
-
-/* BELL */
-
+// Gold reception bell
 const bell = new THREE.Mesh(
-  new THREE.SphereGeometry(0.18,16,16),
+  new THREE.SphereGeometry(0.16, 16, 16),
   new THREE.MeshStandardMaterial({
-    color:0xffd700,
-    metalness:0.7,
-    roughness:0.2
+    color: 0xffd700, metalness: 0.6, roughness: 0.25
   })
 );
-
-bell.position.set(0,1.48,-3);
-
+bell.position.set(0, 1.48, -3);
 scene.add(bell);
 
+// Two doors
+box(1.5, 2.8, 0.2, 0x6b4226, -3.5, 1.4, -5.85);
+box(1.5, 2.8, 0.2, 0x6b4226, 3.5, 1.4, -5.85);
 
-/* DOORS */
+// Hotel signboard
+box(5, 0.8, 0.15, 0x8b6f47, 0, 3.1, -5.8);
 
-const door1 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.5,2.8,0.2),
-  new THREE.MeshStandardMaterial({
-    color:0x6b4226
-  })
-);
-
-door1.position.set(-3.5,1.4,-5.85);
-
-scene.add(door1);
-
-
-const door2 = new THREE.Mesh(
-  new THREE.BoxGeometry(1.5,2.8,0.2),
-  new THREE.MeshStandardMaterial({
-    color:0x6b4226
-  })
-);
-
-door2.position.set(3.5,1.4,-5.85);
-
-scene.add(door2);
-
-
-/* HOTEL SIGN */
-
-const sign = new THREE.Mesh(
-  new THREE.BoxGeometry(5,1,0.15),
-  new THREE.MeshStandardMaterial({
-    color:0x8b6f47
-  })
-);
-
-sign.position.set(0,3.1,-5.8);
-
-scene.add(sign);
-
-
-/* CEILING LIGHT */
-
+// Ceiling light
 const ceilingLight = new THREE.Mesh(
-  new THREE.SphereGeometry(0.35,16,16),
-  new THREE.MeshBasicMaterial({
-    color:0xffffcc
-  })
+  new THREE.SphereGeometry(0.3, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0xffffcc })
 );
-
-ceilingLight.position.set(0,3.8,1);
-
+ceilingLight.position.set(0, 3.8, 1);
 scene.add(ceilingLight);
 
+// Circular control: hold a direction to move
+const directions = {
+  up: false, down: false, left: false, right: false
+};
 
-/* PLAYER MOVEMENT */
+for (const name of Object.keys(directions)) {
+  const button = document.getElementById(name);
 
-const speed = 0.08;
-const turnSpeed = 0.05;
-
-let moveForward = false;
-let moveBack = false;
-let turnLeft = false;
-let turnRight = false;
-
-
-/* BUTTON FUNCTION */
-
-function control(button, action) {
-
-  button.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    action(true);
+  button.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    directions[name] = true;
+    button.classList.add("active");
+    button.setPointerCapture(event.pointerId);
   });
 
-  button.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    action(false);
-  });
+  function stop() {
+    directions[name] = false;
+    button.classList.remove("active");
+  }
 
+  button.addEventListener("pointerup", stop);
+  button.addEventListener("pointercancel", stop);
+  button.addEventListener("lostpointercapture", stop);
 }
 
-
-/* CONTROLS */
-
-control(
-  document.getElementById("forward"),
-  value => moveForward = value
-);
-
-control(
-  document.getElementById("back"),
-  value => moveBack = value
-);
-
-control(
-  document.getElementById("left"),
-  value => turnLeft = value
-);
-
-control(
-  document.getElementById("right"),
-  value => turnRight = value
-);
-
-
-/* GAME LOOP */
-
+// Move sideways without rotating the camera
 function animate() {
-
   requestAnimationFrame(animate);
 
+  const speed = 0.07;
+  const forward = new THREE.Vector3();
+  camera.getWorldDirection(forward);
+  forward.y = 0;
+  forward.normalize();
 
-  /* TURN */
+  const sideways = new THREE.Vector3(
+    -forward.z, 0, forward.x
+  );
 
-  if (turnLeft)
-    camera.rotation.y += turnSpeed;
+  if (directions.up) camera.position.addScaledVector(forward, speed);
+  if (directions.down) camera.position.addScaledVector(forward, -speed);
+  if (directions.left) camera.position.addScaledVector(sideways, -speed);
+  if (directions.right) camera.position.addScaledVector(sideways, speed);
 
-  if (turnRight)
-    camera.rotation.y -= turnSpeed;
+  // Keep the player inside the lobby for now
+  camera.position.x = THREE.MathUtils.clamp(camera.position.x, -5.2, 5.2);
+  camera.position.z = THREE.MathUtils.clamp(camera.position.z, -5.2, 5.2);
 
-
-  /* MOVE */
-
-  if (moveForward) {
-
-    camera.position.x -=
-      Math.sin(camera.rotation.y) * speed;
-
-    camera.position.z -=
-      Math.cos(camera.rotation.y) * speed;
-  }
-
-
-  if (moveBack) {
-
-    camera.position.x +=
-      Math.sin(camera.rotation.y) * speed;
-
-    camera.position.z +=
-      Math.cos(camera.rotation.y) * speed;
-  }
-
-
-  renderer.render(scene,camera);
+  renderer.render(scene, camera);
 }
-
-
 animate();
 
-
-/* RESIZE */
-
-window.addEventListener(
-  "resize",
-  () => {
-
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
-
-  }
-);
-
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
-
 </body>
-  </html>
+</html>
+
