@@ -1,70 +1,49 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Ibadan Haunted Hotel</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Ibadan Hunted Hotel</title>
 <style>
-body {
-  margin: 0;
-  overflow: hidden;
-  touch-action: none;
-}
-canvas {
-  display: block;
-}
-#joystick {
-  position: fixed;
-  left: 22px;
-  bottom: 22px;
-  width: 180px;
-  height: 180px;
-  border: 3px solid #9ca3af;
-  border-radius: 50%;
-  background: rgba(30,35,42,0.82);
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  place-items: center;
-  z-index: 10;
-  touch-action: none;
-  user-select: none;
-}
-.key {
-  color: white;
-  font-size: 30px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #555e68;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#up { grid-column: 2; grid-row: 1; }
-#left { grid-column: 1; grid-row: 2; }
-#center {
-  grid-column: 2;
-  grid-row: 2;
-  width: 38px;
-  height: 38px;
-  background: #3e4853;
-  border-radius: 50%;
-}
-#right { grid-column: 3; grid-row: 2; }
-#down { grid-column: 2; grid-row: 3; }
-.key.active { background: #b38b52; }
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#10131c;font-family:Arial;color:white}
+canvas{display:block}
+#brand{position:fixed;top:10px;left:10px;z-index:5;background:#17151be8;border:1px solid #d6b36c;border-radius:8px;padding:9px;color:#f5d99c;font-weight:bold;font-size:clamp(12px,3vw,20px)}
+#brand small{display:block;color:white;font-size:10px;margin-top:4px}
+button{background:#332820;color:#ffe3a1;border:1px solid #d6b36c;border-radius:8px;padding:10px;font-weight:bold}
+#mode{position:fixed;right:10px;top:10px;z-index:5;max-width:150px}
+#hint{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:5;background:#10131cdd;border:1px solid #a8864d;border-radius:8px;padding:8px;text-align:center;font-size:12px;width:max-content;max-width:90%}
+#joystick{position:fixed;left:12px;bottom:12px;width:145px;height:145px;border:2px solid #c5a56b;border-radius:50%;background:#1c2026dc;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;place-items:center;z-index:5;touch-action:none}
+.key{width:40px;height:40px;border-radius:50%;background:#535c67;color:white;display:flex;align-items:center;justify-content:center;font-size:23px;touch-action:none;user-select:none}
+#up{grid-column:2;grid-row:1}#left{grid-column:1;grid-row:2}#center{grid-column:2;grid-row:2;width:28px;height:28px;border-radius:50%;background:#303741}#right{grid-column:3;grid-row:2}#down{grid-column:2;grid-row:3}
+.key.active{background:#b38b52}
+#panel{position:fixed;right:10px;bottom:12px;width:min(220px,43vw);z-index:5;background:#11131be8;border:1px solid #b38b52;border-radius:10px;padding:10px}
+#panel h3{font-size:14px;color:#f3d38c;margin:0 0 6px}
+#panel p{font-size:11px;line-height:1.4;margin:0 0 8px}
+#panel button{width:100%}
+#inventory{font-size:10px;margin-top:8px;color:#f2d8a2}
+@media(max-height:450px){#joystick{width:112px;height:112px}.key{width:32px;height:32px;font-size:19px}#panel{padding:7px;width:190px}#panel h3{font-size:12px}#panel p{font-size:10px}#hint{top:58px}}
 </style>
 </head>
 <body>
+<div id="brand">CRYSTAL LUXURY HOTEL<small>IBADAN HUNTED HOTEL</small></div>
+<button id="mode">ENTER HAUNTED MODE</button>
+<div id="hint">Explore the hotel and inspect objects</div>
 
 <div id="joystick">
-  <div class="key" id="up">▲</div>
-  <div class="key" id="left">◀</div>
-  <div id="center"></div>
-  <div class="key" id="right">▶</div>
-  <div class="key" id="down">▼</div>
+<div class="key" id="up">▲</div>
+<div class="key" id="left">◀</div>
+<div id="center"></div>
+<div class="key" id="right">▶</div>
+<div class="key" id="down">▼</div>
+</div>
+
+<div id="panel">
+<h3 id="objectTitle">Reception Desk</h3>
+<p id="objectText">Welcome to Crystal Luxury Hotel. Explore the reception.</p>
+<button id="inspect">INSPECT OBJECT</button>
+<div id="inventory"><b>INVENTORY:</b> Empty</div>
 </div>
 
 <script type="module">
@@ -72,132 +51,374 @@ import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xbfd8e8);
+scene.background = new THREE.Color(0xa9bdca);
+scene.fog = new THREE.Fog(0xa9bdca,20,45);
 
-const camera = new THREE.PerspectiveCamera(
-  75, window.innerWidth / window.innerHeight, 0.1, 100
-);
-camera.position.set(0, 2, 8);
-camera.lookAt(0, 1.5, 0);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+const camera = new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,100);
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.shadowMap.enabled = true;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.body.appendChild(renderer.domElement);
 
-scene.add(new THREE.AmbientLight(0xffffff, 2));
+scene.add(new THREE.HemisphereLight(0xffe7c2,0x4b4555,2));
 
-const light = new THREE.PointLight(0xfff2c4, 40, 30);
-light.position.set(0, 4, 2);
-scene.add(light);
+const mainLight = new THREE.PointLight(0xffd99a,65,30);
+mainLight.position.set(0,4,-1);
+scene.add(mainLight);
 
-function box(w, h, d, color, x, y, z) {
-  const obj = new THREE.Mesh(
-    new THREE.BoxGeometry(w, h, d),
-    new THREE.MeshStandardMaterial({ color })
-  );
-  obj.position.set(x, y, z);
-  scene.add(obj);
-  return obj;
+const interactives=[];
+
+function mat(color,extra={}){
+ return new THREE.MeshStandardMaterial({color,roughness:.7,...extra});
+}
+function box(w,h,d,color,x,y,z,name="",info=""){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ m.receiveShadow=true;
+ scene.add(m);
+ if(name){
+  m.userData.name=name;
+  m.userData.info=info;
+  interactives.push(m);
+ }
+ return m;
+}
+function ball(r,color,x,y,z){
+ const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat(color));
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ scene.add(m);
+ return m;
+}
+function cylinder(rt,rb,h,color,x,y,z){
+ const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,16),mat(color));
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ scene.add(m);
+ return m;
 }
 
-// Bright lobby floor and carpet
-box(12, 0.2, 12, 0xd8c3a5, 0, -0.1, 0);
-box(6, 0.04, 7, 0x8b3f3f, 0, 0.03, 1);
+// HOTEL FLOOR
+box(18,.3,20,0xcbb89b,0,-.2,0);
+box(8,.05,12,0x7e2638,0,.01,1);
 
-// Lobby walls
-box(12, 4, 0.2, 0xf0e6d2, 0, 2, -6);
-box(0.2, 4, 12, 0xe7dcc8, -6, 2, 0);
-box(0.2, 4, 12, 0xe7dcc8, 6, 2, 0);
+// HOTEL WALLS
+box(18,5,.3,0xe4d5bd,0,2.5,-8.5);
+box(.3,5,17,0xd8c7ad,-8.8,2.5,0);
+box(.3,5,17,0xd8c7ad,8.8,2.5,0);
+box(18,.2,20,0x49362f,0,5.1,0);
 
-// Reception desk and top
-box(4, 1.2, 1.2, 0x6b4226, 0, 0.6, -3);
-box(4.2, 0.15, 1.4, 0x9b6b43, 0, 1.25, -3);
-
-// Gold reception bell
-const bell = new THREE.Mesh(
-  new THREE.SphereGeometry(0.16, 16, 16),
-  new THREE.MeshStandardMaterial({
-    color: 0xffd700, metalness: 0.6, roughness: 0.25
-  })
-);
-bell.position.set(0, 1.48, -3);
-scene.add(bell);
-
-// Two doors
-box(1.5, 2.8, 0.2, 0x6b4226, -3.5, 1.4, -5.85);
-box(1.5, 2.8, 0.2, 0x6b4226, 3.5, 1.4, -5.85);
-
-// Hotel signboard
-box(5, 0.8, 0.15, 0x8b6f47, 0, 3.1, -5.8);
-
-// Ceiling light
-const ceilingLight = new THREE.Mesh(
-  new THREE.SphereGeometry(0.3, 16, 16),
-  new THREE.MeshBasicMaterial({ color: 0xffffcc })
-);
-ceilingLight.position.set(0, 3.8, 1);
-scene.add(ceilingLight);
-
-// Circular control: hold a direction to move
-const directions = {
-  up: false, down: false, left: false, right: false
-};
-
-for (const name of Object.keys(directions)) {
-  const button = document.getElementById(name);
-
-  button.addEventListener("pointerdown", event => {
-    event.preventDefault();
-    directions[name] = true;
-    button.classList.add("active");
-    button.setPointerCapture(event.pointerId);
-  });
-
-  function stop() {
-    directions[name] = false;
-    button.classList.remove("active");
-  }
-
-  button.addEventListener("pointerup", stop);
-  button.addEventListener("pointercancel", stop);
-  button.addEventListener("lostpointercapture", stop);
+// DECORATIVE BACK WALL
+for(let x=-7;x<=7;x+=2.3){
+ box(1.7,3.4,.08,0x997347,x,2.5,-8.28);
+ box(1.4,3,.05,0x5a3a30,x,2.5,-8.20);
 }
 
-// Move sideways without rotating the camera
-function animate() {
-  requestAnimationFrame(animate);
+// GOLD CARPET BORDER
+box(8,.04,10,0xc5a05e,0,.03,1);
+box(7.7,.05,9.7,0x742b3a,0,.06,1);
 
-  const speed = 0.07;
-  const forward = new THREE.Vector3();
-  camera.getWorldDirection(forward);
-  forward.y = 0;
-  forward.normalize();
+// RECEPTION DESK
+box(5.2,1.2,1.4,0x593523,0,.6,-4,
+ "Reception Desk",
+ "The luxurious mahogany desk holds a laptop, guest files, room keys and a golden reception bell.");
+box(5.4,.15,1.5,0xc8a35c,0,1.25,-4);
+box(4.8,.7,.08,0x30201c,0,.65,-3.27);
+box(3,.08,.08,0xe4bf6b,0,.85,-3.21);
 
-  const sideways = new THREE.Vector3(
-    -forward.z, 0, forward.x
-  );
+// HOTEL SIGN
+box(6,1.1,.2,0x513126,0,4,-8.15);
+function makeSign(){
+ const c=document.createElement("canvas");
+ c.width=1024;c.height=256;
+ const ctx=c.getContext("2d");
+ ctx.fillStyle="#513126";ctx.fillRect(0,0,1024,256);
+ ctx.strokeStyle="#e0bd71";ctx.lineWidth=12;
+ ctx.strokeRect(10,10,1004,236);
+ ctx.fillStyle="#f5d994";
+ ctx.font="bold  sixty 64px Georgia";
+ ctx.font="bold 64px Georgia";
+ ctx.textAlign="center";ctx.textBaseline="middle";
+ ctx.fillText("CRYSTAL LUXURY HOTEL",512,128);
+ const tex=new THREE.CanvasTexture(c);
+ tex.colorSpace=THREE.SRGBColorSpace;
+ const sign=new THREE.Mesh(
+  new THREE.PlaneGeometry(5.7,.85),
+  new THREE.MeshBasicMaterial({map:tex})
+ );
+ sign.position.set(0,4,-8.02);
+ scene.add(sign);
+}
+makeSign();
 
-  if (directions.up) camera.position.addScaledVector(forward, speed);
-  if (directions.down) camera.position.addScaledVector(forward, -speed);
-  if (directions.left) camera.position.addScaledVector(sideways, -speed);
-  if (directions.right) camera.position.addScaledVector(sideways, speed);
+// CHANDELIER
+cylinder(.04,.04,1,0xd6b56e,0,4.65,-.5);
+cylinder(.12,.2,.13,0xd6b56e,0,4.1,-.5);
+for(let i=0;i<6;i++){
+ const a=i*Math.PI/3;
+ const x=Math.cos(a)*.8,z=-.5+Math.sin(a)*.5;
+ cylinder(.025,.025,.4,0xd6b56e,x,4,z);
+ ball(.12,0xffedb0,x,3.8,z);
+ const bulb=new THREE.PointLight(0xffd28a,2,4);
+ bulb.position.set(x,3.8,z);
+ scene.add(bulb);
+}
 
-  // Keep the player inside the lobby for now
-  camera.position.x = THREE.MathUtils.clamp(camera.position.x, -5.2, 5.2);
-  camera.position.z = THREE.MathUtils.clamp(camera.position.z, -5.2, 5.2);
+// LAPTOP
+box(1,.08,.65,0x282c33,-1.25,1.4,-4.1,
+ "Reception Laptop",
+ "The security system shows that Camera 04 stopped working at 11:49 PM.");
+box(.9,.48,.04,0x22515b,-1.25,1.67,-4.43);
+box(.78,.36,.02,0x49a4ad,-1.25,1.67,-4.40);
 
-  renderer.render(scene, camera);
+// GUEST FILES
+for(let i=0;i<3;i++){
+ box(.8,.07,.55,[0xe6d6b6,0x8d3939,0xd8c7a3][i],
+ -.05,1.4+i*.075,-4.2,
+ "Guest Files",
+ "The guest register says Room 207 checked in at 11:49 PM. The checkout column is blank.");
+}
+
+// NUMBERED KEYS
+box(.75,.08,.5,0x282c33,1.25,1.4,-4.2,
+ "Numbered Room Keys",
+ "A brass key tagged 207 feels strangely cold. You may need it later.");
+for(let i=0;i<5;i++){
+ cylinder(.025,.025,.25,0xd5b35f,1.02+i*.12,1.62,-4.1);
+ ball(.065,0xe0bb68,1.02+i*.12,1.48,-4.1);
+}
+const tag=box(.22,.12,.04,0xd6b36c,1.25,1.77,-4.14);
+tag.rotation.z=-.2;
+
+// GOLD RECEPTION BELL
+cylinder(.13,.17,.08,0xffd34e,2.05,1.42,-4.2);
+ball(.07,0xffedb4,2.05,1.5,-4.2);
+
+// DOORS
+box(2,3.4,.25,0xc49a5a,-6.1,1.7,-8.2);
+box(1.65,3.05,.15,0x563526,-6.1,1.55,-8.02,
+ "Staff Door",
+ "The staff-only door has a keypad that is blinking red.");
+box(2,3.4,.25,0xc49a5a,6.1,1.7,-8.2);
+box(1.65,3.05,.15,0x563526,6.1,1.55,-8.02,
+ "Main Hall Door",
+ "The main hallway is dark. You need to investigate the reception first.");
+ball(.07,0xe6c66c,-5.55,1.45,-7.91);
+ball(.07,0xe6c66c,5.55,1.45,-7.91);
+
+// DECORATIVE PLANTS
+function plant(x,z){
+ cylinder(.3,.25,.5,0x67412a,x,.25,z);
+ cylinder(.06,.05,.7,0x345b37,x,.8,z);
+ for(let i=0;i<6;i++){
+  const a=i*1.05;
+  const leaf=ball(.16,0x347247,x+Math.cos(a)*.3,1.05+(i%3)*.12,z+Math.sin(a)*.25);
+  leaf.scale.set(.7,1.6,.7);
+ }
+}
+plant(-7.5,-6.5);plant(7.5,-6.5);
+plant(-7.5,6.5);plant(7.5,6.5);
+
+// PLAYER CHARACTER
+const player=new THREE.Group();
+scene.add(player);
+
+const skin=mat(0x8e5b3c);
+const clothes=mat(0x252b3a);
+const shirt=mat(0xf2e8d7);
+const hair=mat(0x211713);
+function part(geometry,material,x,y,z){
+ const m=new THREE.Mesh(geometry,material);
+ m.position.set(x,y,z);
+ m.castShadow=true;
+ player.add(m);
+ return m;
+}
+part(new THREE.CapsuleGeometry(.29,.55,4,8),clothes,0,1.05,0);
+part(new THREE.BoxGeometry(.32,.42,.07),shirt,0,1.1,-.25);
+part(new THREE.CylinderGeometry(.08,.09,.16,12),skin,0,1.48,0);
+part(new THREE.SphereGeometry(.23,16,12),skin,0,1.76,0);
+const haircap=part(new THREE.SphereGeometry(.235,16,12),hair,0,1.88,.015);
+haircap.scale.y=.6;
+
+for(const x of [-.075,.075]){
+ part(new THREE.SphereGeometry(.025,8,8),mat(0x17120f),x,1.78,-.205);
+}
+const armL=part(new THREE.CapsuleGeometry(.09,.42,3,7),clothes,-.37,1.04,0);
+const armR=part(new THREE.CapsuleGeometry(.09,.42,3,7),clothes,.37,1.04,0);
+const legL=part(new THREE.CapsuleGeometry(.12,.45,3,7),mat(0x342820),-.15,.39,0);
+const legR=part(new THREE.CapsuleGeometry(.12,.45,3,7),mat(0x342820),.15,.39,0);
+part(new THREE.SphereGeometry(.08,10,8),skin,-.39,.76,0);
+part(new THREE.SphereGeometry(.08,10,8),skin,.39,.76,0);
+player.position.set(0,0,4.8);
+
+// GHOST
+const ghost=new THREE.Group();
+scene.add(ghost);
+ghost.position.set(3,0,-1);
+ghost.visible=false;
+const ghostMaterial=new THREE.MeshStandardMaterial({
+ color:0xbbeeff,transparent:true,opacity:.75,
+ emissive:0x52bde8,emissiveIntensity:1
+});
+const gh=new THREE.Mesh(new THREE.SphereGeometry(.32,16,12),ghostMaterial);
+gh.position.y=1.65;ghost.add(gh);
+const gb=new THREE.Mesh(new THREE.ConeGeometry(.45,1.3,12),ghostMaterial);
+gb.position.y=.95;ghost.add(gb);
+const eyeMat=new THREE.MeshBasicMaterial({color:0x132238});
+for(const x of [-.11,.11]){
+ const e=new THREE.Mesh(new THREE.SphereGeometry(.045,8,8),eyeMat);
+ e.position.set(x,1.7,-.28);ghost.add(e);
+}
+const ghostLight=new THREE.PointLight(0x64d9ff,3,5);
+ghostLight.position.y=1.5;ghost.add(ghostLight);
+
+// JOYSTICK CONTROLS
+const directions={up:false,down:false,left:false,right:false};
+for(const name of Object.keys(directions)){
+ const el=document.getElementById(name);
+ const start=e=>{
+  e.preventDefault();
+  directions[name]=true;
+  el.classList.add("active");
+  try{el.setPointerCapture(e.pointerId)}catch(err){}
+ };
+ const stop=()=>{
+  directions[name]=false;
+  el.classList.remove("active");
+ };
+ el.addEventListener("pointerdown",start);
+ el.addEventListener("pointerup",stop);
+ el.addEventListener("pointercancel",stop);
+ el.addEventListener("lostpointercapture",stop);
+}
+
+// INSPECT OBJECTS
+let selected=null;
+let haunted=false;
+const inventory=[];
+const title=document.getElementById("objectTitle");
+const description=document.getElementById("objectText");
+const inventoryText=document.getElementById("inventory");
+
+function choose(obj){
+ selected=obj;
+ title.textContent=obj.userData.name;
+ description.textContent=obj.userData.info;
+}
+
+function nearest(){
+ let found=null,best=2.5;
+ for(const obj of interactives){
+  const d=player.position.distanceTo(obj.position);
+  if(d<best){found=obj;best=d;}
+ }
+ return found;
+}
+
+document.getElementById("inspect").addEventListener("click",()=>{
+ const obj=nearest()||selected;
+ if(!obj){
+  title.textContent="Nothing nearby";
+  description.textContent="Walk closer to the desk, files, laptop, keys or a door.";
+  return;
+ }
+ choose(obj);
+ const name=obj.userData.name;
+ if(name==="Numbered Room Keys"){
+  if(!inventory.includes("Room 207 key"))inventory.push("Room 207 key");
+  inventoryText.innerHTML="<b>INVENTORY:</b> "+inventory.join(", ");
+  description.textContent="You collected the key marked 207.";
+ }else if(name==="Guest Files"){
+  if(!inventory.includes("Guest register"))inventory.push("Guest register");
+  inventoryText.innerHTML="<b>INVENTORY:</b> "+inventory.join(", ");
+  description.textContent="Clue collected: Room 207 checked in at 11:49 PM. No checkout was recorded.";
+ }else if(name==="Reception Laptop"&&haunted){
+  description.textContent="The screen flickers: DON'T OPEN ROOM 207.";
+ }else if(name==="Main Hall Door"&&!inventory.includes("Room 207 key")){
+  description.textContent="The door is locked. Search the reception for clues.";
+ }
+});
+
+// HAUNTED MODE
+document.getElementById("mode").addEventListener("click",()=>{
+ haunted=!haunted;
+ scene.background.set(haunted?0x080c19:0xa9bdca);
+ scene.fog.color.set(haunted?0x080c19:0xa9bdca);
+ scene.fog.near=haunted?3:20;
+ scene.fog.far=haunted?20:45;
+ mainLight.color.set(haunted?0x65aaff:0xffd99a);
+ mainLight.intensity=haunted?22:65;
+ ghost.visible=haunted;
+ document.getElementById("mode").textContent=
+ haunted?"RETURN TO NORMAL":"ENTER HAUNTED MODE";
+ document.getElementById("hint").textContent=
+ haunted?"The ghost has appeared. Inspect the laptop for a clue.":"Explore the hotel and inspect objects";
+ title.textContent=haunted?"Haunted Reception":"Reception Desk";
+ description.textContent=haunted?
+ "The lights turn cold and a ghost appears near the carpet.":
+ "Welcome to Crystal Luxury Hotel. Explore the reception.";
+});
+
+// THIRD-PERSON CAMERA AND WALKING ANIMATION
+const clock=new THREE.Clock();
+let walk=0;
+
+function animate(){
+ requestAnimationFrame(animate);
+ const dt=Math.min(clock.getDelta(),.05);
+ const move=new THREE.Vector3();
+
+ if(directions.up)move.z-=1;
+ if(directions.down)move.z+=1;
+ if(directions.left)move.x-=1;
+ if(directions.right)move.x+=1;
+
+ if(move.lengthSq()>0){
+  move.normalize();
+  player.position.x+=move.x*3*dt;
+  player.position.z+=move.z*3*dt;
+  player.position.x=THREE.MathUtils.clamp(player.position.x,-7.5,7.5);
+  player.position.z=THREE.MathUtils.clamp(player.position.z,-7.5,7.2);
+  player.rotation.y=Math.atan2(move.x,move.z);
+  walk+=dt*10;
+  legL.rotation.x=Math.sin(walk)*.5;
+  legR.rotation.x=-Math.sin(walk)*.5;
+  armL.rotation.x=-Math.sin(walk)*.3;
+  armR.rotation.x=Math.sin(walk)*.3;
+ }else{
+  legL.rotation.x=THREE.MathUtils.damp(legL.rotation.x,0,8,dt);
+  legR.rotation.x=THREE.MathUtils.damp(legR.rotation.x,0,8,dt);
+  armL.rotation.x=THREE.MathUtils.damp(armL.rotation.x,0,8,dt);
+  armR.rotation.x=THREE.MathUtils.damp(armR.rotation.x,0,8,dt);
+ }
+
+ // Camera follows behind the character
+ const offset=new THREE.Vector3(0,3.1,6).applyAxisAngle(
+  new THREE.Vector3(0,1,0),player.rotation.y
+ );
+ const target=player.position.clone().add(offset);
+ camera.position.lerp(target,1-Math.exp(-5*dt));
+ camera.lookAt(player.position.x,player.position.y+1,player.position.z);
+
+ if(haunted){
+  ghost.position.y=.1+Math.sin(performance.now()*.002)*.18;
+  ghost.position.x=3+Math.sin(performance.now()*.0007);
+ }
+
+ renderer.render(scene,camera);
 }
 animate();
 
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+window.addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 </body>
-</html>
-
+  </html>
+  
